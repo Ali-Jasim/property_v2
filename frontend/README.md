@@ -1,4 +1,3 @@
-```markdown
 # Frontend README
 
 ## Overview
@@ -23,8 +22,3 @@ This README provides information about the frontend application.
 ## Contributing
 
 Please follow the contributing guidelines.
-
-## License
-
-[License]
-```
