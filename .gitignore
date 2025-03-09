@@ -7,3 +7,5 @@ frontend/.env
 backend/__pycache__/
 backend/.env
 backend/models/__pycache__/
+
+test.db
