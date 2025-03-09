@@ -161,8 +161,12 @@ def delete_property(db: Session, property_id: int):
 def get_landlord_properties(db: Session, landlord_id: int):
     return db.query(Property).filter(Property.landlord_id == landlord_id).all()
 
+def get_property_tenant(db: Session, property_id: int):
+    return db.query(Tenant).filter(Tenant.property_id == property_id).first()
+
 def get_property_tenants(db: Session, property_id: int):
-    return db.query(Tenant).filter(Tenant.property_id == property_id).all()
+    tenant = get_property_tenant(db, property_id)
+    return [tenant] if tenant else []
 
 def get_landlord_tenants(db: Session, landlord_id: int):
     return db.query(Tenant).filter(Tenant.landlord_id == landlord_id).all()

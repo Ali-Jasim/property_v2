@@ -11,6 +11,7 @@ from db import (
     get_landlord_properties, get_property_tenants, get_landlord_tenants, get_landlord_contractors,
     create_tables  # Import the create_tables function
 )
+from models.tenant import Tenant  # Correct import for the Tenant model
 
 app = FastAPI(title="Property Management API")
 
@@ -306,22 +307,12 @@ def delete_contractor_endpoint(
 # Property routes
 @app.post("/properties/", status_code=status.HTTP_201_CREATED)
 async def create_property_endpoint(
-    address: str = Body(..., description="Property address"),
-    property_type: str = Body(..., description="Type of property (apartment, house, condo)"),
-    bedrooms: int = Body(..., description="Number of bedrooms"),
-    bathrooms: float = Body(..., description="Number of bathrooms"),
-    rent_amount: float = Body(..., description="Monthly rent amount"),
-    is_occupied: bool = Body(False, description="Whether the property is currently occupied"),
+    address: str = Body(..., description="Property address/location"),
     landlord_id: int = Body(..., description="ID of the landlord"),
     db: Session = Depends(get_db)
 ):
     property_data = {
         "address": address,
-        "property_type": property_type,
-        "bedrooms": bedrooms,
-        "bathrooms": bathrooms,
-        "rent_amount": rent_amount,
-        "is_occupied": is_occupied,
         "landlord_id": landlord_id
     }
     try:
@@ -335,10 +326,6 @@ def read_properties(
     skip: int = Query(0, description="Number of records to skip"),
     limit: int = Query(100, description="Maximum number of records to return"),
     address: Optional[str] = Query(None, description="Filter by address"),
-    property_type: Optional[str] = Query(None, description="Filter by property type"),
-    min_bedrooms: Optional[int] = Query(None, description="Filter by minimum bedrooms"),
-    max_rent: Optional[float] = Query(None, description="Filter by maximum rent"),
-    is_occupied: Optional[bool] = Query(None, description="Filter by occupancy status"),
     landlord_id: Optional[int] = Query(None, description="Filter by landlord ID"),
     db: Session = Depends(get_db)
 ):
@@ -347,14 +334,6 @@ def read_properties(
     # Apply filters if provided
     if address:
         properties = [p for p in properties if address.lower() in p.address.lower()]
-    if property_type:
-        properties = [p for p in properties if p.property_type.lower() == property_type.lower()]
-    if min_bedrooms is not None:
-        properties = [p for p in properties if p.bedrooms >= min_bedrooms]
-    if max_rent is not None:
-        properties = [p for p in properties if p.rent_amount <= max_rent]
-    if is_occupied is not None:
-        properties = [p for p in properties if p.is_occupied == is_occupied]
     if landlord_id:
         properties = [p for p in properties if p.landlord_id == landlord_id]
         
@@ -374,27 +353,12 @@ def read_property(
 async def update_property_endpoint(
     property_id: int = Path(..., description="The ID of the property to update"),
     address: Optional[str] = Body(None, description="Updated address"),
-    property_type: Optional[str] = Body(None, description="Updated property type"),
-    bedrooms: Optional[int] = Body(None, description="Updated number of bedrooms"),
-    bathrooms: Optional[float] = Body(None, description="Updated number of bathrooms"),
-    rent_amount: Optional[float] = Body(None, description="Updated rent amount"),
-    is_occupied: Optional[bool] = Body(None, description="Updated occupancy status"),
     landlord_id: Optional[int] = Body(None, description="Updated landlord ID"),
     db: Session = Depends(get_db)
 ):
     property_data = {}
     if address is not None:
         property_data["address"] = address
-    if property_type is not None:
-        property_data["property_type"] = property_type
-    if bedrooms is not None:
-        property_data["bedrooms"] = bedrooms
-    if bathrooms is not None:
-        property_data["bathrooms"] = bathrooms
-    if rent_amount is not None:
-        property_data["rent_amount"] = rent_amount
-    if is_occupied is not None:
-        property_data["is_occupied"] = is_occupied
     if landlord_id is not None:
         property_data["landlord_id"] = landlord_id
 
@@ -447,16 +411,29 @@ def read_landlord_contractors_endpoint(
     contractors = get_landlord_contractors(db, landlord_id=landlord_id)
     return [to_dict(contractor) for contractor in contractors]
 
-@app.get("/properties/{property_id}/tenants")
-def read_property_tenants_endpoint(
+@app.get("/properties/{property_id}/tenant")
+def read_property_tenant_endpoint(
     property_id: int = Path(..., description="The ID of the property"),
     db: Session = Depends(get_db)
 ):
     db_property = get_property(db, property_id=property_id)
     if db_property is None:
         raise HTTPException(status_code=404, detail="Property not found")
-    tenants = get_property_tenants(db, property_id=property_id)
-    return [to_dict(tenant) for tenant in tenants]
+    
+    # Get the single tenant for this property
+    tenant = db.query(Tenant).filter(Tenant.property_id == property_id).first()
+    if tenant is None:
+        return None
+    return to_dict(tenant)
+
+# Update the existing endpoint to maintain backward compatibility
+@app.get("/properties/{property_id}/tenants")
+def read_property_tenants_endpoint(
+    property_id: int = Path(..., description="The ID of the property"),
+    db: Session = Depends(get_db)
+):
+    # Call the newer endpoint for a single tenant
+    return read_property_tenant_endpoint(property_id, db)
 
 if __name__ == "__main__":
     import uvicorn

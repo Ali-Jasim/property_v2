@@ -13,9 +13,9 @@ class Tenant(Base):
     landlord_id = Column(Integer, ForeignKey("landlords.id"), nullable=False)
     property_id = Column(Integer, ForeignKey("properties.id"), nullable=True)
     
-    # Use string references here too (though they're already strings)
+    # Update the relationship reference to match the property model
     landlord = relationship("Landlord", back_populates="tenants")
-    property = relationship("Property", back_populates="tenants")
+    property = relationship("Property", back_populates="tenant")
     
     def __repr__(self):
         return f"<Tenant(name='{self.name}', email='{self.email}'), phone_number='{self.phone_number}'>"
