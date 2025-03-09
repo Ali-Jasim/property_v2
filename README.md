@@ -1,4 +1,3 @@
-```markdown
 # Property Management App
 
 A property management application built with React, FastAPI, and SQLAlchemy.
@@ -28,6 +27,3 @@ A property management application built with React, FastAPI, and SQLAlchemy.
 ## Contributing
 
 Contributions are welcome! Please submit a pull request.
-```
-
--+-+-+-+-+
