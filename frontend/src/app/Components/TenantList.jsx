@@ -13,24 +13,36 @@ import {
 const TenantList = () => {
   const [tenants, setTenants] = useState([]);
   const [newTenantName, setNewTenantName] = useState("");
-  const [newTenantAddress, setNewTenantAddress] = useState("");
+  const [newTenantPhone, setNewTenantPhone] = useState("");
+  const [newTenantEmail, setNewTenantEmail] = useState("");
+  const [newTenantLandlordId, setNewTenantLandlordId] = useState("");
   const [editTenant, setEditTenant] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (newTenantName.trim() === "" || newTenantAddress.trim() === "") return;
+    if (
+      newTenantName.trim() === "" ||
+      newTenantPhone.trim() === "" ||
+      newTenantEmail.trim() === "" ||
+      newTenantLandlordId.trim() === ""
+    )
+      return;
 
     setTenants([
       ...tenants,
       {
         id: Date.now(),
         name: newTenantName.trim(),
-        address: newTenantAddress.trim(),
+        phone_number: newTenantPhone.trim(),
+        email: newTenantEmail.trim(),
+        landlord_id: newTenantLandlordId.trim(),
       },
     ]);
     setNewTenantName("");
-    setNewTenantAddress("");
+    setNewTenantPhone("");
+    setNewTenantEmail("");
+    setNewTenantLandlordId("");
   };
 
   const handleDelete = (id) => {
@@ -68,7 +80,9 @@ const TenantList = () => {
                 >
                   <div>
                     <div>{tenant.name}</div>
-                    <div>{tenant.address}</div>
+                    <div>{tenant.phone_number}</div>
+                    <div>{tenant.email}</div>
+                    <div>{tenant.landlord_id}</div>
                   </div>
                   <div>
                     <Button
@@ -103,9 +117,25 @@ const TenantList = () => {
             <InputGroup className="mb-3">
               <Form.Control
                 type="text"
-                value={newTenantAddress}
-                onChange={(e) => setNewTenantAddress(e.target.value)}
-                placeholder="Enter tenant address"
+                value={newTenantPhone}
+                onChange={(e) => setNewTenantPhone(e.target.value)}
+                placeholder="Enter tenant phone"
+              />
+            </InputGroup>
+            <InputGroup className="mb-3">
+              <Form.Control
+                type="email"
+                value={newTenantEmail}
+                onChange={(e) => setNewTenantEmail(e.target.value)}
+                placeholder="Enter tenant email"
+              />
+            </InputGroup>
+            <InputGroup className="mb-3">
+              <Form.Control
+                type="text"
+                value={newTenantLandlordId}
+                onChange={(e) => setNewTenantLandlordId(e.target.value)}
+                placeholder="Enter landlord ID"
               />
             </InputGroup>
             <Button variant="primary" type="submit">
@@ -134,11 +164,34 @@ const TenantList = () => {
             <InputGroup className="mb-3">
               <Form.Control
                 type="text"
-                value={editTenant?.address || ""}
+                value={editTenant?.phone_number || ""}
                 onChange={(e) =>
-                  setEditTenant({ ...editTenant, address: e.target.value })
+                  setEditTenant({ ...editTenant, phone_number: e.target.value })
                 }
-                placeholder="Enter tenant address"
+                placeholder="Enter tenant phone"
+              />
+            </InputGroup>
+            <InputGroup className="mb-3">
+              <Form.Control
+                type="email"
+                value={editTenant?.email || ""}
+                onChange={(e) =>
+                  setEditTenant({ ...editTenant, email: e.target.value })
+                }
+                placeholder="Enter tenant email"
+              />
+            </InputGroup>
+            <InputGroup className="mb-3">
+              <Form.Control
+                type="text"
+                value={editTenant?.landlord_id || ""}
+                onChange={(e) =>
+                  setEditTenant({
+                    ...editTenant,
+                    landlord_id: e.target.value,
+                  })
+                }
+                placeholder="Enter landlord ID"
               />
             </InputGroup>
           </Form>

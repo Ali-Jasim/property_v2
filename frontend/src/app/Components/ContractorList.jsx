@@ -35,7 +35,7 @@ const ContractorList = () => {
         id: Date.now(),
         name: newContractorName.trim(),
         email: newContractorEmail.trim(),
-        phone: newContractorPhone.trim(),
+        phone_number: newContractorPhone.trim(),
         work: newContractorWork.trim(),
       },
     ]);
@@ -81,7 +81,7 @@ const ContractorList = () => {
                   <div>
                     <div>{contractor.name}</div>
                     <div>{contractor.email}</div>
-                    <div>{contractor.phone}</div>
+                    <div>{contractor.phone_number}</div>
                     <div>{contractor.work}</div>
                   </div>
                   <div>
@@ -177,11 +177,11 @@ const ContractorList = () => {
             <InputGroup className="mb-3">
               <Form.Control
                 type="text"
-                value={editContractor?.phone || ""}
+                value={editContractor?.phone_number || ""}
                 onChange={(e) =>
                   setEditContractor({
                     ...editContractor,
-                    phone: e.target.value,
+                    phone_number: e.target.value,
                   })
                 }
                 placeholder="Enter contractor phone"

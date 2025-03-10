@@ -40,7 +40,11 @@ const IssueList = () => {
   };
 
   const handleResolve = (id) => {
-    setIssues(issues.filter((issue) => issue.id !== id));
+    setIssues(
+      issues.map((issue) =>
+        issue.id === id ? { ...issue, resolved: true } : issue
+      )
+    );
   };
 
   return (
