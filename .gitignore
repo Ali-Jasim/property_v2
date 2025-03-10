@@ -9,3 +9,4 @@ backend/.env
 backend/models/__pycache__/
 
 test.db
+.pytest_cache/

@@ -1,0 +1,37 @@
+.main-container {
+  height: fit-content;
+  background-color: black;
+  color: white;
+  display: flex;
+}
+
+@media (min-width: 1000px) {
+  .main-container {
+    height: 100vh;
+  }
+}
+
+.main-content {
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  justify-content: center;
+  align-items: center;
+}
+
+.list-group-item {
+  display: flex;
+  justify-content: space-between;
+}
+
+.tenant-list {
+}
+
+.contractor-list {
+}
+
+.button-container {
+  display: flex;
+
+  gap: 10px;
+}
