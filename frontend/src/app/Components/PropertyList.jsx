@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   ListGroup,
@@ -8,6 +8,7 @@ import {
   Alert,
   Card,
   Modal,
+  Spinner,
 } from "react-bootstrap";
 
 const PropertyList = () => {
@@ -17,27 +18,83 @@ const PropertyList = () => {
   const [editProperty, setEditProperty] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const handleSubmit = (e) => {
+  // Fetch properties on component mount
+  useEffect(() => {
+    fetchProperties();
+  }, []);
+
+  const fetchProperties = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("http://localhost:8000/properties/");
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setProperties(data);
+      setError(null);
+    } catch (err) {
+      console.error("Error fetching properties:", err);
+      setError("Failed to load properties. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (newPropertyAddress.trim() === "" || newPropertyLandlordId.trim() === "")
       return;
 
-    setProperties([
-      ...properties,
-      {
-        id: Date.now(),
-        address: newPropertyAddress.trim(),
-        landlord_id: newPropertyLandlordId.trim(),
-      },
-    ]);
-    setNewPropertyAddress("");
-    setNewPropertyLandlordId("");
-    setShowCreate(false);
+    try {
+      const url = new URL("http://localhost:8000/properties/");
+      url.searchParams.append("address", newPropertyAddress.trim());
+      url.searchParams.append("landlord_id", newPropertyLandlordId.trim());
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const newProperty = await response.json();
+      setProperties([...properties, newProperty]);
+      setNewPropertyAddress("");
+      setNewPropertyLandlordId("");
+      setShowCreate(false);
+      setError(null);
+    } catch (err) {
+      console.error("Error creating property:", err);
+      setError("Failed to create property. Please try again.");
+    }
   };
 
-  const handleDelete = (id) => {
-    setProperties(properties.filter((property) => property.id !== id));
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:8000/properties/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      setProperties(properties.filter((property) => property.id !== id));
+      setError(null);
+    } catch (err) {
+      console.error("Error deleting property:", err);
+      setError("Failed to delete property. Please try again.");
+    }
   };
 
   const handleEdit = (property) => {
@@ -45,14 +102,38 @@ const PropertyList = () => {
     setShowModal(true);
   };
 
-  const handleSave = () => {
-    setProperties(
-      properties.map((property) =>
-        property.id === editProperty.id ? editProperty : property
-      )
-    );
-    setShowModal(false);
-    setEditProperty(null);
+  const handleSave = async () => {
+    try {
+      const url = new URL(
+        `http://localhost:8000/properties/${editProperty.id}`
+      );
+      url.searchParams.append("address", editProperty.address);
+      url.searchParams.append("landlord_id", editProperty.landlord_id);
+
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const updatedProperty = await response.json();
+      setProperties(
+        properties.map((property) =>
+          property.id === editProperty.id ? updatedProperty : property
+        )
+      );
+      setShowModal(false);
+      setEditProperty(null);
+      setError(null);
+    } catch (err) {
+      console.error("Error updating property:", err);
+      setError("Failed to update property. Please try again.");
+    }
   };
 
   return (
@@ -60,7 +141,15 @@ const PropertyList = () => {
       <Card bg="dark" border="dark" text="white" className="property-list">
         <Card.Header>Property List</Card.Header>
         <Card.Body>
-          {properties.length === 0 ? (
+          {error && <Alert variant="danger">{error}</Alert>}
+
+          {loading ? (
+            <div className="text-center">
+              <Spinner animation="border" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </Spinner>
+            </div>
+          ) : properties.length === 0 ? (
             <Alert variant="info">No properties in the list yet!</Alert>
           ) : (
             <ListGroup>
@@ -78,6 +167,7 @@ const PropertyList = () => {
                       variant="primary"
                       size="sm"
                       onClick={() => handleEdit(property)}
+                      className="me-2"
                     >
                       Edit
                     </Button>
