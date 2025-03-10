@@ -14,6 +14,7 @@ const IssueList = () => {
   const [newIssueDescription, setNewIssueDescription] = useState("");
   const [newIssueLocation, setNewIssueLocation] = useState("");
   const [newIssueAction, setNewIssueAction] = useState("");
+  const [showCreate, setShowCreate] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -37,6 +38,7 @@ const IssueList = () => {
     setNewIssueDescription("");
     setNewIssueLocation("");
     setNewIssueAction("");
+    setShowCreate(false);
   };
 
   const handleResolve = (id) => {
@@ -83,35 +85,43 @@ const IssueList = () => {
             </ListGroup>
           )}
           <br />
-          <Form onSubmit={handleSubmit} className="mb-4">
-            <InputGroup className="mb-3">
-              <Form.Control
-                type="text"
-                value={newIssueDescription}
-                onChange={(e) => setNewIssueDescription(e.target.value)}
-                placeholder="Enter issue description"
-              />
-            </InputGroup>
-            <InputGroup className="mb-3">
-              <Form.Control
-                type="text"
-                value={newIssueLocation}
-                onChange={(e) => setNewIssueLocation(e.target.value)}
-                placeholder="Enter issue location"
-              />
-            </InputGroup>
-            <InputGroup className="mb-3">
-              <Form.Control
-                type="text"
-                value={newIssueAction}
-                onChange={(e) => setNewIssueAction(e.target.value)}
-                placeholder="Enter action to take"
-              />
-            </InputGroup>
-            <Button variant="primary" type="submit">
-              Add Issue
-            </Button>
-          </Form>
+          <Button
+            variant="secondary"
+            onClick={() => setShowCreate(!showCreate)}
+          >
+            {showCreate ? "Cancel" : "Create"}
+          </Button>
+          {showCreate && (
+            <Form onSubmit={handleSubmit} className="mb-4 mt-3">
+              <InputGroup className="mb-3">
+                <Form.Control
+                  type="text"
+                  value={newIssueDescription}
+                  onChange={(e) => setNewIssueDescription(e.target.value)}
+                  placeholder="Enter issue description"
+                />
+              </InputGroup>
+              <InputGroup className="mb-3">
+                <Form.Control
+                  type="text"
+                  value={newIssueLocation}
+                  onChange={(e) => setNewIssueLocation(e.target.value)}
+                  placeholder="Enter issue location"
+                />
+              </InputGroup>
+              <InputGroup className="mb-3">
+                <Form.Control
+                  type="text"
+                  value={newIssueAction}
+                  onChange={(e) => setNewIssueAction(e.target.value)}
+                  placeholder="Enter action to take"
+                />
+              </InputGroup>
+              <Button variant="primary" type="submit">
+                Add Issue
+              </Button>
+            </Form>
+          )}
         </Card.Body>
       </Card>
     </Container>

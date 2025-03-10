@@ -18,6 +18,7 @@ const ContractorList = () => {
   const [newContractorWork, setNewContractorWork] = useState("");
   const [editContractor, setEditContractor] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showCreate, setShowCreate] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -43,6 +44,7 @@ const ContractorList = () => {
     setNewContractorEmail("");
     setNewContractorPhone("");
     setNewContractorWork("");
+    setShowCreate(false);
   };
 
   const handleDelete = (id) => {
@@ -105,43 +107,51 @@ const ContractorList = () => {
             </ListGroup>
           )}
           <br />
-          <Form onSubmit={handleSubmit} className="mb-4">
-            <InputGroup className="mb-3">
-              <Form.Control
-                type="text"
-                value={newContractorName}
-                onChange={(e) => setNewContractorName(e.target.value)}
-                placeholder="Enter contractor name"
-              />
-            </InputGroup>
-            <InputGroup className="mb-3">
-              <Form.Control
-                type="email"
-                value={newContractorEmail}
-                onChange={(e) => setNewContractorEmail(e.target.value)}
-                placeholder="Enter contractor email"
-              />
-            </InputGroup>
-            <InputGroup className="mb-3">
-              <Form.Control
-                type="text"
-                value={newContractorPhone}
-                onChange={(e) => setNewContractorPhone(e.target.value)}
-                placeholder="Enter contractor phone"
-              />
-            </InputGroup>
-            <InputGroup className="mb-3">
-              <Form.Control
-                type="text"
-                value={newContractorWork}
-                onChange={(e) => setNewContractorWork(e.target.value)}
-                placeholder="Enter contractor work"
-              />
-            </InputGroup>
-            <Button variant="primary" type="submit">
-              Add Contractor
-            </Button>
-          </Form>
+          <Button
+            variant="secondary"
+            onClick={() => setShowCreate(!showCreate)}
+          >
+            {showCreate ? "Cancel" : "Create"}
+          </Button>
+          {showCreate && (
+            <Form onSubmit={handleSubmit} className="mb-4 mt-3">
+              <InputGroup className="mb-3">
+                <Form.Control
+                  type="text"
+                  value={newContractorName}
+                  onChange={(e) => setNewContractorName(e.target.value)}
+                  placeholder="Enter contractor name"
+                />
+              </InputGroup>
+              <InputGroup className="mb-3">
+                <Form.Control
+                  type="email"
+                  value={newContractorEmail}
+                  onChange={(e) => setNewContractorEmail(e.target.value)}
+                  placeholder="Enter contractor email"
+                />
+              </InputGroup>
+              <InputGroup className="mb-3">
+                <Form.Control
+                  type="text"
+                  value={newContractorPhone}
+                  onChange={(e) => setNewContractorPhone(e.target.value)}
+                  placeholder="Enter contractor phone"
+                />
+              </InputGroup>
+              <InputGroup className="mb-3">
+                <Form.Control
+                  type="text"
+                  value={newContractorWork}
+                  onChange={(e) => setNewContractorWork(e.target.value)}
+                  placeholder="Enter contractor work"
+                />
+              </InputGroup>
+              <Button variant="primary" type="submit">
+                Add Contractor
+              </Button>
+            </Form>
+          )}
         </Card.Body>
       </Card>
 

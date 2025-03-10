@@ -18,6 +18,7 @@ const TenantList = () => {
   const [newTenantLandlordId, setNewTenantLandlordId] = useState("");
   const [editTenant, setEditTenant] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showCreate, setShowCreate] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -43,6 +44,7 @@ const TenantList = () => {
     setNewTenantPhone("");
     setNewTenantEmail("");
     setNewTenantLandlordId("");
+    setShowCreate(false);
   };
 
   const handleDelete = (id) => {
@@ -105,43 +107,51 @@ const TenantList = () => {
             </ListGroup>
           )}
           <br />
-          <Form onSubmit={handleSubmit} className="mb-4">
-            <InputGroup className="mb-3">
-              <Form.Control
-                type="text"
-                value={newTenantName}
-                onChange={(e) => setNewTenantName(e.target.value)}
-                placeholder="Enter tenant name"
-              />
-            </InputGroup>
-            <InputGroup className="mb-3">
-              <Form.Control
-                type="text"
-                value={newTenantPhone}
-                onChange={(e) => setNewTenantPhone(e.target.value)}
-                placeholder="Enter tenant phone"
-              />
-            </InputGroup>
-            <InputGroup className="mb-3">
-              <Form.Control
-                type="email"
-                value={newTenantEmail}
-                onChange={(e) => setNewTenantEmail(e.target.value)}
-                placeholder="Enter tenant email"
-              />
-            </InputGroup>
-            <InputGroup className="mb-3">
-              <Form.Control
-                type="text"
-                value={newTenantLandlordId}
-                onChange={(e) => setNewTenantLandlordId(e.target.value)}
-                placeholder="Enter landlord ID"
-              />
-            </InputGroup>
-            <Button variant="primary" type="submit">
-              Add Tenant
-            </Button>
-          </Form>
+          <Button
+            variant="secondary"
+            onClick={() => setShowCreate(!showCreate)}
+          >
+            {showCreate ? "Cancel" : "Create"}
+          </Button>
+          {showCreate && (
+            <Form onSubmit={handleSubmit} className="mb-4 mt-3">
+              <InputGroup className="mb-3">
+                <Form.Control
+                  type="text"
+                  value={newTenantName}
+                  onChange={(e) => setNewTenantName(e.target.value)}
+                  placeholder="Enter tenant name"
+                />
+              </InputGroup>
+              <InputGroup className="mb-3">
+                <Form.Control
+                  type="text"
+                  value={newTenantPhone}
+                  onChange={(e) => setNewTenantPhone(e.target.value)}
+                  placeholder="Enter tenant phone"
+                />
+              </InputGroup>
+              <InputGroup className="mb-3">
+                <Form.Control
+                  type="email"
+                  value={newTenantEmail}
+                  onChange={(e) => setNewTenantEmail(e.target.value)}
+                  placeholder="Enter tenant email"
+                />
+              </InputGroup>
+              <InputGroup className="mb-3">
+                <Form.Control
+                  type="text"
+                  value={newTenantLandlordId}
+                  onChange={(e) => setNewTenantLandlordId(e.target.value)}
+                  placeholder="Enter landlord ID"
+                />
+              </InputGroup>
+              <Button variant="primary" type="submit">
+                Add Tenant
+              </Button>
+            </Form>
+          )}
         </Card.Body>
       </Card>
 
