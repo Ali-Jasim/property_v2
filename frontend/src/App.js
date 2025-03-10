@@ -5,6 +5,7 @@ import TenantList from './app/Components/TenantList';
 import ContractorList from './app/Components/ContractorList';
 import { Row, Col } from 'react-bootstrap';
 import IssueList from './app/Components/IssueList';
+import PropertyList from './app/Components/PropertyList';
 
 
 
@@ -21,11 +22,16 @@ function App() {
           <ContractorList />
         </Col>
         <Col lg={4} md={12} >
+          <PropertyList />
+
+        </Col>
+        <Col lg={4} md={12}>
           <IssueList />
         </Col>
 
 
       </Row>
+
     </div>
   );
 }
