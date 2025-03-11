@@ -5,6 +5,7 @@ from models.tenant import Tenant
 from models.contractor import Contractor
 from models.landlord import Landlord
 from models.property import Property
+from models.issue import Issue  # Add this import
 from database import SessionLocal, engine  # Updated import
 from middleware.cors_middleware import setup_cors
 import json
@@ -265,6 +266,85 @@ def delete_property(property_id: int, db: Session = Depends(get_db)):
     if not Property.delete(db, property_id):
         raise HTTPException(status_code=404, detail="Property not found")
     return {"detail": "Property deleted"}
+
+
+# Issue endpoints
+@app.post("/issues/")
+def create_issue(
+    description: str = Query(...),
+    location: str = Query(...),
+    action: str = Query(...),
+    resolved: bool = Query(False),
+    property_id: int = Query(None),
+    db: Session = Depends(get_db),
+):
+    issue_data = {
+        "description": description,
+        "location": location,
+        "action": action,
+        "resolved": resolved,
+    }
+
+    if property_id is not None:
+        # Verify the property exists
+        property_obj = Property.get(db, property_id)
+        if property_obj is None:
+            raise HTTPException(status_code=404, detail="Property not found")
+        issue_data["property_id"] = property_id
+
+    return Issue.create(db, issue_data)
+
+
+@app.get("/issues/{issue_id}")
+def read_issue(issue_id: int, db: Session = Depends(get_db)):
+    issue = Issue.get(db, issue_id)
+    if issue is None:
+        raise HTTPException(status_code=404, detail="Issue not found")
+    return issue
+
+
+@app.get("/issues/")
+def read_issues(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    return Issue.get_all(db, skip, limit)
+
+
+@app.put("/issues/{issue_id}")
+def update_issue(
+    issue_id: int,
+    description: str = Query(None),
+    location: str = Query(None),
+    action: str = Query(None),
+    resolved: bool = Query(None),
+    property_id: int = Query(None),
+    db: Session = Depends(get_db),
+):
+    issue_data = {}
+    if description is not None:
+        issue_data["description"] = description
+    if location is not None:
+        issue_data["location"] = location
+    if action is not None:
+        issue_data["action"] = action
+    if resolved is not None:
+        issue_data["resolved"] = resolved
+    if property_id is not None:
+        # Verify the property exists
+        property_obj = Property.get(db, property_id)
+        if property_obj is None:
+            raise HTTPException(status_code=404, detail="Property not found")
+        issue_data["property_id"] = property_id
+
+    issue = Issue.update(db, issue_id, issue_data)
+    if issue is None:
+        raise HTTPException(status_code=404, detail="Issue not found")
+    return issue
+
+
+@app.delete("/issues/{issue_id}")
+def delete_issue(issue_id: int, db: Session = Depends(get_db)):
+    if not Issue.delete(db, issue_id):
+        raise HTTPException(status_code=404, detail="Issue not found")
+    return {"detail": "Issue deleted"}
 
 
 if __name__ == "__main__":

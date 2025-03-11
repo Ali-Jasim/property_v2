@@ -14,6 +14,7 @@ class Property(Base):
     # Change relationship with tenant from one-to-many to one-to-one
     landlord = relationship("Landlord", back_populates="properties")
     tenant = relationship("Tenant", back_populates="property", uselist=False)
+    issues = relationship("Issue", back_populates="property")  # Add this line
 
     def __repr__(self):
         return f"<Property(address='{self.address}')>"

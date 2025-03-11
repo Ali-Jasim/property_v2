@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   ListGroup,
@@ -8,6 +8,7 @@ import {
   Alert,
   Card,
   Modal,
+  Spinner,
 } from "react-bootstrap";
 
 const TenantList = () => {
@@ -19,8 +20,43 @@ const TenantList = () => {
   const [editTenant, setEditTenant] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const handleSubmit = (e) => {
+  // Fetch tenants on component mount
+  useEffect(() => {
+    fetchTenants();
+  }, []);
+
+  const fetchTenants = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("http://localhost:8000/tenants/", {
+        method: "GET",
+        mode: "cors",
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Fetched tenants:", data);
+      setTenants(data);
+      setError(null);
+    } catch (err) {
+      console.error("Error fetching tenants:", err);
+      setError("Failed to load tenants. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (
       newTenantName.trim() === "" ||
@@ -30,24 +66,61 @@ const TenantList = () => {
     )
       return;
 
-    setTenants([
-      ...tenants,
-      {
-        name: newTenantName.trim(),
-        phone_number: newTenantPhone.trim(),
-        email: newTenantEmail.trim(),
-        landlord_id: newTenantLandlordId.trim(),
-      },
-    ]);
-    setNewTenantName("");
-    setNewTenantPhone("");
-    setNewTenantEmail("");
-    setNewTenantLandlordId("");
-    setShowCreate(false);
+    try {
+      // Create URL with query parameters
+      const url = new URL("http://localhost:8000/tenants/");
+      url.searchParams.append("name", newTenantName.trim());
+      url.searchParams.append("phone_number", newTenantPhone.trim());
+      url.searchParams.append("email", newTenantEmail.trim());
+      url.searchParams.append("landlord_id", newTenantLandlordId.trim());
+
+      console.log("Sending request to:", url.toString());
+
+      const response = await fetch(url, {
+        method: "POST",
+        mode: "cors",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const newTenant = await response.json();
+      setTenants([...tenants, newTenant]);
+      setNewTenantName("");
+      setNewTenantPhone("");
+      setNewTenantEmail("");
+      setNewTenantLandlordId("");
+      setShowCreate(false);
+      setError(null);
+    } catch (err) {
+      console.error("Error creating tenant:", err);
+      setError("Failed to create tenant. Please try again.");
+    }
   };
 
-  const handleDelete = (id) => {
-    setTenants(tenants.filter((tenant) => tenant.id !== id));
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:8000/tenants/${id}`, {
+        method: "DELETE",
+        mode: "cors",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      setTenants(tenants.filter((tenant) => tenant.id !== id));
+      setError(null);
+    } catch (err) {
+      console.error("Error deleting tenant:", err);
+      setError("Failed to delete tenant. Please try again.");
+    }
   };
 
   const handleEdit = (tenant) => {
@@ -55,14 +128,40 @@ const TenantList = () => {
     setShowModal(true);
   };
 
-  const handleSave = () => {
-    setTenants(
-      tenants.map((tenant) =>
-        tenant.id === editTenant.id ? editTenant : tenant
-      )
-    );
-    setShowModal(false);
-    setEditTenant(null);
+  const handleSave = async () => {
+    try {
+      const url = new URL(`http://localhost:8000/tenants/${editTenant.id}`);
+      url.searchParams.append("name", editTenant.name);
+      url.searchParams.append("phone_number", editTenant.phone_number);
+      url.searchParams.append("email", editTenant.email);
+      url.searchParams.append("landlord_id", editTenant.landlord_id);
+
+      const response = await fetch(url, {
+        method: "PUT",
+        mode: "cors",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const updatedTenant = await response.json();
+      setTenants(
+        tenants.map((tenant) =>
+          tenant.id === editTenant.id ? updatedTenant : tenant
+        )
+      );
+      setShowModal(false);
+      setEditTenant(null);
+      setError(null);
+    } catch (err) {
+      console.error("Error updating tenant:", err);
+      setError("Failed to update tenant. Please try again.");
+    }
   };
 
   return (
@@ -70,7 +169,15 @@ const TenantList = () => {
       <Card bg="dark" border="dark" text="white" className="tenant-list">
         <Card.Header>Tenant List</Card.Header>
         <Card.Body>
-          {tenants.length === 0 ? (
+          {error && <Alert variant="danger">{error}</Alert>}
+
+          {loading ? (
+            <div className="text-center">
+              <Spinner animation="border" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </Spinner>
+            </div>
+          ) : tenants.length === 0 ? (
             <Alert variant="info">No tenants in the list yet!</Alert>
           ) : (
             <ListGroup>
