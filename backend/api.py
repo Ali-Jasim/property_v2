@@ -8,7 +8,7 @@ from models.property import Property
 from models.issue import Issue  # Add this import
 from database import SessionLocal, engine  # Updated import
 from middleware.cors_middleware import setup_cors
-import json
+
 
 app = FastAPI()
 
