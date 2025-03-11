@@ -33,7 +33,6 @@ const TenantList = () => {
     setTenants([
       ...tenants,
       {
-        id: Date.now(),
         name: newTenantName.trim(),
         phone_number: newTenantPhone.trim(),
         email: newTenantEmail.trim(),

@@ -6,8 +6,12 @@ from models.contractor import Contractor
 from models.landlord import Landlord
 from models.property import Property
 from database import SessionLocal, engine  # Updated import
+from middleware.cors_middleware import setup_cors
+import json
 
 app = FastAPI()
+
+setup_cors(app)
 
 # Create the database tables
 Base.metadata.create_all(bind=engine)
@@ -91,13 +95,19 @@ def create_contractor(
     name: str = Query(...),
     phone_number: str = Query(...),
     email: str = Query(...),
+    work: str = Query(...),
+    landlord_id: int = Query(None),
     db: Session = Depends(get_db),
 ):
+    # Convert work to JSON string if it's not already
     contractor_data = {
         "name": name,
         "phone_number": phone_number,
         "email": email,
+        "work": work,  # Use 'work' instead of '_work' to match DB column name
+        "landlord_id": landlord_id,
     }
+
     return Contractor.create(db, contractor_data)
 
 
@@ -120,6 +130,8 @@ def update_contractor(
     name: str = Query(None),
     phone_number: str = Query(None),
     email: str = Query(None),
+    work: str = Query(None),  # Added work parameter
+    landlord_id: int = Query(None),  # Added landlord_id parameter
     db: Session = Depends(get_db),
 ):
     contractor_data = {}
@@ -129,6 +141,10 @@ def update_contractor(
         contractor_data["phone_number"] = phone_number
     if email is not None:
         contractor_data["email"] = email
+    if work is not None:
+        contractor_data["work"] = work
+    if landlord_id is not None:
+        contractor_data["landlord_id"] = landlord_id
 
     contractor = Contractor.update(db, contractor_id, contractor_data)
     if contractor is None:

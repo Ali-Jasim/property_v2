@@ -28,7 +28,6 @@ const IssueList = () => {
     setIssues([
       ...issues,
       {
-        id: Date.now(),
         description: newIssueDescription.trim(),
         location: newIssueLocation.trim(),
         action: newIssueAction.trim(),

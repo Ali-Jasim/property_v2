@@ -29,13 +29,21 @@ const PropertyList = () => {
   const fetchProperties = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:8000/properties/");
+      const response = await fetch("http://localhost:8000/properties/", {
+        method: "GET",
+        mode: "cors",
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+        },
+      });
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log("Fetched properties:", data);
       setProperties(data);
       setError(null);
     } catch (err) {
@@ -52,12 +60,17 @@ const PropertyList = () => {
       return;
 
     try {
+      // Create URL with query parameters instead of using JSON body
       const url = new URL("http://localhost:8000/properties/");
       url.searchParams.append("address", newPropertyAddress.trim());
       url.searchParams.append("landlord_id", newPropertyLandlordId.trim());
 
+      console.log("Sending request to:", url.toString());
+
       const response = await fetch(url, {
         method: "POST",
+        mode: "cors",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
