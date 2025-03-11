@@ -231,7 +231,7 @@ const IssueList = () => {
                     <div>Status: {issue.resolved ? "Resolved" : "Open"}</div>
                   </div>
                   <div>
-                    {!issue.resolved && (
+                    {!issue.resolved ? (
                       <Button
                         variant="success"
                         size="sm"
@@ -239,6 +239,24 @@ const IssueList = () => {
                       >
                         Resolve
                       </Button>
+                    ) : (
+                      <>
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          onClick={() => handleEdit(issue)}
+                          className="me-2"
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => handleDelete(issue.id)}
+                        >
+                          Delete
+                        </Button>
+                      </>
                     )}
                   </div>
                 </ListGroup.Item>
