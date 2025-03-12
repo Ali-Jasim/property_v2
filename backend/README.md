@@ -19,7 +19,7 @@ Represents a tenant in the system.
 
 - **Relationships:**
   - `landlord`: Many-to-one relationship with the `Landlord` model.
-  - `property`: One-to-one relationship with the `Property` model.
+  - `property`: Many-to-one relationship with the `Property` model.
 
 ### Contractor
 
@@ -37,9 +37,10 @@ Represents a contractor in the system.
 - **Relationships:**
 
   - `landlord`: Many-to-one relationship with the `Landlord` model.
+  - `properties`: Many-to-many relationship with the `Property` model through work assignments.
 
 - **Properties:**
-  - `work` (list): List of work details, stored as a JSON string.
+  - `work` (list): List of work details, accessed via getter/setter methods, stored as a JSON string.
 
 ### Landlord
 
@@ -65,11 +66,30 @@ Represents a property in the system.
 
   - `id` (int): Primary key.
   - `address` (str): Address of the property.
+  - `rent_amount` (float): Monthly rent amount.
+  - `status` (str): Current status of the property (e.g., "vacant", "occupied").
   - `landlord_id` (int): Foreign key referencing the landlord.
 
 - **Relationships:**
   - `landlord`: Many-to-one relationship with the `Landlord` model.
-  - `tenant`: One-to-one relationship with the `Tenant` model.
+  - `tenants`: One-to-many relationship with the `Tenant` model.
+  - `contractors`: Many-to-many relationship with the `Contractor` model through work assignments.
+
+### Issue
+
+Represents a maintenance or repair issue in the system.
+
+- **Attributes:**
+
+  - `id` (int): Primary key.
+  - `description` (str): Description of the issue.
+  - `location` (str): Location of the issue within the property.
+  - `action` (str): Action to be taken to resolve the issue.
+  - `resolved` (boolean): Status of the issue resolution.
+  - `property_id` (int, optional): Foreign key referencing the property.
+
+- **Relationships:**
+  - `property`: Many-to-one relationship with the `Property` model.
 
 ## Endpoints
 
@@ -105,6 +125,14 @@ Represents a property in the system.
 - `PUT /properties/{property_id}`: Update a property by ID.
 - `DELETE /properties/{property_id}`: Delete a property by ID.
 
+### Issue Endpoints
+
+- `POST /issues/`: Create a new issue.
+- `GET /issues/{issue_id}`: Get an issue by ID.
+- `GET /issues/`: Get all issues with pagination.
+- `PUT /issues/{issue_id}`: Update an issue by ID.
+- `DELETE /issues/{issue_id}`: Delete an issue by ID.
+
 ## Running the Application
 
 To run the application, use the following command:
@@ -114,3 +142,14 @@ uvicorn api:app --host 0.0.0.0 --port 8000
 ```
 
 This will start the FastAPI server on `http://0.0.0.0:8000`.
+
+## File Structure
+
+Key files in this project:
+
+- `api.py`: Main FastAPI application with all endpoints
+- `models/tenant.py`: Tenant model definition
+- `models/contractor.py`: Contractor model definition
+- `models/landlord.py`: Landlord model definition
+- `models/property.py`: Property model definition
+- `models/issue.py`: Issue model definition
